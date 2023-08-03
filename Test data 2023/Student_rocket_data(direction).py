@@ -15,14 +15,14 @@ Last modified [dd.mm.yyyy]: 23.06.2023
 The tkinter code is based on a script by odd-einar.cedervall.nervik
 '''
 
-import tkinter as tk # GUI
-import tkinter.filedialog as fd # file dialogs
-import os # OS-specific directory manipulation
-from os import path # common file path manipulations
-import dask.dataframe as dd # import of data
-import matplotlib.pyplot as plt # plotting
-import numpy as np # maths
-import pandas as pd # data handling
+import tkinter as tk  # GUI
+import tkinter.filedialog as fd  # file dialogs
+import os  # OS-specific directory manipulation
+from os import path  # common file path manipulations
+import dask.dataframe as dd  # import of data
+import matplotlib.pyplot as plt  # plotting
+import numpy as np  # maths
+import pandas as pd  # data handling
 import math
 
 
@@ -40,78 +40,78 @@ pd.options.mode.chained_assignment = None
 # namespace instead of an empty one".
 
 load_data = True
-sanitize_gps = True # Filter GPS-data using satellite number & height?
+sanitize_gps = True  # Filter GPS-data using satellite number & height?
 convert_data = True
-process_data = True # Relevant calculations for your scientific case
+process_data = True  # Relevant calculations for your scientific case
 create_plots = True
 show_plots = True
-export_plots = False # Plots cannot be exported unless created!
-export_processed_data = False # Simplified channel names
-export_raw_data = False # Original channel names
+export_plots = False  # Plots cannot be exported unless created!
+export_processed_data = False  # Simplified channel names
+export_raw_data = False  # Original channel names
 export_kml = False
 
 
 # To save memory and computing power, this script allows users to exclude all
 # data before a given time t_0.
 
-t_0 = 0 # [s]
-t_end = np.inf # [s]
+t_0 = 0  # [s]
+t_end = np.inf  # [s]
 
 
 # ============================ Sensor parameters ============================ #
 
 # analogue accelerometers
-a_x_sens = -0.045 # Sensitivity [V/gee]
-a_x_offset = 2.575 # Offset [V]. Nominal value: 2.5 V
-a_x_max = 50 # Sensor limit in the x-direction [gee]
+a_x_sens = -0.045  # Sensitivity [V/gee]
+a_x_offset = 2.575  # Offset [V]. Nominal value: 2.5 V
+a_x_max = 50  # Sensor limit in the x-direction [gee]
 
-a_y_sens = 0.125 # Sensitivity [V/gee]
-a_y_offset = 2.555 # Offset [V]. Nominal value: 2.5 V
-a_y_max = 20 # Sensor limit in the y-direction [gee]
+a_y_sens = 0.125  # Sensitivity [V/gee]
+a_y_offset = 2.555  # Offset [V]. Nominal value: 2.5 V
+a_y_max = 20  # Sensor limit in the y-direction [gee]
 
 
 # External and internal temperature sensors
-temp_ext_gain = 9.8 # As a fraction, not in dB!
-temp_ext_offset = 9.8*0.5 # Output at 0 degrees celsius (after gain) [V]
-temp_int_gain = 6.72 # As a fraction, not in dB!
-temp_int_offset = 6.72*0.5 # Output at 0 degrees celsius (after gain) [V]
+temp_ext_gain = 9.8  # As a fraction, not in dB!
+temp_ext_offset = 9.8*0.5  # Output at 0 degrees celsius (after gain) [V]
+temp_int_gain = 6.72  # As a fraction, not in dB!
+temp_int_offset = 6.72*0.5  # Output at 0 degrees celsius (after gain) [V]
 
 
 # NTC
-R_fixed = 1e4 # [ohm]
-R_ref = 1e4 # [ohm]
-A_1 = 3.354016e-3 # [–]
-B_1 = 2.569850e-4 # [K^(-1)]
-C_1 = 2.620131e-6 # [K^(-2)]
-D_1 = 6.383091e-8 # [K^(-3)]
+R_fixed = 1e4  # [ohm]
+R_ref = 1e4  # [ohm]
+A_1 = 3.354016e-3  # [–]
+B_1 = 2.569850e-4  # [K^(-1)]
+C_1 = 2.620131e-6  # [K^(-2)]
+D_1 = 6.383091e-8  # [K^(-3)]
 
 
 # IMU
-a_x_imu_sens = 7.32e-4 # Sensitivity [gee/LSB]
-a_y_imu_sens = 7.32e-4 # Sensitivity [gee/LSB]
-a_z_imu_sens = 7.32e-4 # Sensitivity [gee/LSB]
-a_x_imu_offset = 0 # Output at 0 gee [signed integer bit value]
-a_y_imu_offset = 0 # Output at 0 gee [signed integer bit value]
-a_z_imu_offset = 0 # Output at 0 gee [signed integer bit value]
+a_x_imu_sens = 7.32e-4  # Sensitivity [gee/LSB]
+a_y_imu_sens = 7.32e-4  # Sensitivity [gee/LSB]
+a_z_imu_sens = 7.32e-4  # Sensitivity [gee/LSB]
+a_x_imu_offset = 0  # Output at 0 gee [signed integer bit value]
+a_y_imu_offset = 0  # Output at 0 gee [signed integer bit value]
+a_z_imu_offset = 0  # Output at 0 gee [signed integer bit value]
 
-ang_vel_x_sens = 0.07 # Sensitivity [dps/LSB]
-ang_vel_y_sens = 0.07 # Sensitivity [dps/LSB]
-ang_vel_z_sens = 0.07 # Sensitivity [dps/LSB]
-ang_vel_x_offset = 0 # Output at 0 dps [signed integer bit value]
-ang_vel_y_offset = 0 # Output at 0 dps [signed integer bit value]
-ang_vel_z_offset = 0 # Output at 0 dps [signed integer bit value]
+ang_vel_x_sens = 0.07  # Sensitivity [dps/LSB]
+ang_vel_y_sens = 0.07  # Sensitivity [dps/LSB]
+ang_vel_z_sens = 0.07  # Sensitivity [dps/LSB]
+ang_vel_x_offset = 0  # Output at 0 dps [signed integer bit value]
+ang_vel_y_offset = 0  # Output at 0 dps [signed integer bit value]
+ang_vel_z_offset = 0  # Output at 0 dps [signed integer bit value]
 
-mag_x_sens = 1.4e-4 # Sensitivity [gauss/LSB]
-mag_y_sens = 1.4e-4 # Sensitivity [gauss/LSB]
-mag_z_sens = 1.4e-4 # Sensitivity [gauss/LSB]
-mag_x_offset = 0 # Output at 0 gauss [signed integer bit value]
-mag_y_offset = 0 # Output at 0 gauss [signed integer bit value]
-mag_z_offset = 0 # Output at 0 gauss [signed integer bit value]
+mag_x_sens = 1.4e-4  # Sensitivity [gauss/LSB]
+mag_y_sens = 1.4e-4  # Sensitivity [gauss/LSB]
+mag_z_sens = 1.4e-4  # Sensitivity [gauss/LSB]
+mag_x_offset = 0  # Output at 0 gauss [signed integer bit value]
+mag_y_offset = 0  # Output at 0 gauss [signed integer bit value]
+mag_z_offset = 0  # Output at 0 gauss [signed integer bit value]
 
 
 # Power sensor
-voltage_sensor_gain = 0.288 # As a fraction, not in dB!
-R_current_sensor = 20e-3 # [ohm
+voltage_sensor_gain = 0.288  # As a fraction, not in dB!
+R_current_sensor = 20e-3  # [ohm
 
 # ============================= Channel set-up ============================== #
 
@@ -138,7 +138,7 @@ analogue_channels = {
     'P0/Main stream/accelerometer_x ()': 'a_x',
     'P0/Main stream/accelerometer_y ()': 'a_y',
     'P0/Main stream/magnetometer ()': 'mag',
-    }
+}
 
 temp_array_channels = {
     'P0/Temp array/a_t0 ()': 'temp_array_0',
@@ -151,12 +151,12 @@ temp_array_channels = {
     'P0/Temp array/a_t7 ()': 'temp_array_7',
     'P0/Temp array/a_t8 ()': 'temp_array_8',
     'P0/Temp array/a_t9 ()': 'temp_array_9',
-    }
+}
 
 power_sensor_channels = {
     'P0/Temp array/array_voltage ()': 'voltage',
     'P0/Temp array/array_current ()': 'current',
-    }
+}
 
 gps_channels = {
     'P0/GPS/IMU/GPS_satellites ()': 'satellites',
@@ -165,7 +165,7 @@ gps_channels = {
     'P0/GPS/IMU/GPS_altitude ()': 'height',
     'P0/GPS/IMU/GPS_speed ()': 'speed',
     'P0/GPS/IMU/GPS_GDOP ()': 'gdop',
-    }
+}
 
 imu_channels = {
     'P0/GPS/IMU/IMU_Ax ()': 'a_x_imu',
@@ -177,12 +177,12 @@ imu_channels = {
     'P0/GPS/IMU/IMU_Mx ()': 'mag_x',
     'P0/GPS/IMU/IMU_My ()': 'mag_y',
     'P0/GPS/IMU/IMU_Mz ()': 'mag_z',
-    }
+}
 
 misc_channels = {
     'Time (s)': 't',
     'P0/Main stream/main_counter ()': 'framecounter',
-    }
+}
 # Create one large dictionary of all channels to be imported
 
 channels = {
@@ -192,7 +192,7 @@ channels = {
     **gps_channels,
     **imu_channels,
     **misc_channels
-    }
+}
 
 
 # Replace dictionaries with list of new channel names. This makes it easy to
@@ -206,7 +206,6 @@ power_sensor_channels = list(power_sensor_channels.values())
 gps_channels = list(gps_channels.values())
 imu_channels = list(imu_channels.values())
 misc_channels = list(misc_channels.values())
-
 
 
 # =========================================================================== #
@@ -224,19 +223,19 @@ if load_data:
     # from the file explorer.
 
     data_file = fd.askopenfilename(
-        title = 'Select rocket data to import',
-        filetypes = (('CSV files','.csv'),('All files','.*')),
-        parent = root,
-        )
-    
-    print('\nLoading data from t =',t_0,'s to',t_end,'s.')
-    print('\nFile path:\n',data_file,'\n')
+        title='Select rocket data to import',
+        filetypes=(('CSV files', '.csv'), ('All files', '.*')),
+        parent=root,
+    )
+
+    print('\nLoading data from t =', t_0, 's to', t_end, 's.')
+    print('\nFile path:\n', data_file, '\n')
 
     # Save some file paths for later.
 
     parent_file_name, parent_file_extension = path.splitext(
         path.basename(data_file)
-        )
+    )
     working_directory = ''
 
     # Use dask to load the file, saving only the lines with t >= t_0 into
@@ -245,11 +244,11 @@ if load_data:
 
     raw_data = dd.read_csv(
         data_file,
-        usecols = channels.keys(),
-        sep = ',',
-        assume_missing = True,
-        encoding = 'windows-1252', # 'utf-8',
-        )
+        usecols=channels.keys(),
+        sep=',',
+        assume_missing=True,
+        encoding='windows-1252',  # 'utf-8',
+    )
     raw_data = raw_data[raw_data['Time (s)'] >= t_0]
     raw_data = raw_data[raw_data['Time (s)'] < t_end]
     raw_data = raw_data.compute()
@@ -257,30 +256,30 @@ if load_data:
     # Simplify channel names according to the user-defined dictionary.
 
     raw_data.rename(
-        columns = channels,
-        inplace = True,
-        )
+        columns=channels,
+        inplace=True,
+    )
 
     # Sanitize GPS-data
     if sanitize_gps:
         mask = raw_data['satellites'] < 3
         mask2 = raw_data['satellites'] == 3
-        mask3 = raw_data['speed'] > 1e6 # cm/s
-        mask4 = raw_data['height'] > 1e6 # cm
+        mask3 = raw_data['speed'] > 1e6  # cm/s
+        mask4 = raw_data['height'] > 1e6  # cm
         raw_data.loc[mask, ['lat', 'long', 'height', 'speed']] = np.nan
         raw_data.loc[mask2, ['height', 'speed']] = np.nan
         raw_data.loc[mask3, ['speed']] = np.nan
         raw_data.loc[mask4, ['height']] = np.nan
-    
-    
+
     # ======================== De-multiplex data ======================== #
-    
+
     def isolate_dataseries(data_label, unique_time_label=False):
         time_label = 't'
         if unique_time_label:
             time_label += '_' + data_label
         data = pd.DataFrame()
-        data[[time_label, data_label]] = raw_data[['t', data_label]].dropna(thresh=2)
+        data[[time_label, data_label]] = raw_data[[
+            't', data_label]].dropna(thresh=2)
         # data = data.dropna(subset=[time_label]) # In case we somehow have a NaN in the time-axis
         # To ease the identification of lost data, we want to store a nan-value
         # between data points where there *should* have been data. In order to
@@ -300,42 +299,42 @@ if load_data:
         data = pd.concat([data, nan_data]).sort_values(by=[time_label])
         data.reset_index(drop=True, inplace=True)
         return data
-    
+
     def isolate_dataframe(frame, unique_time_label=False):
         # Step 1: Create list of separated data series
         # Step 2: Combine the data series into one dataframe
         # Step 3: Profit!
         if unique_time_label:
-            dataseries = [isolate_dataseries(x, unique_time_label=True) for x in frame]
+            dataseries = [isolate_dataseries(
+                x, unique_time_label=True) for x in frame]
             new_frame = pd.concat(dataseries, axis=1, join='inner')
         else:
-            new_frame = pd.DataFrame({'t':[]}) # Empty time-frame
+            new_frame = pd.DataFrame({'t': []})  # Empty time-frame
             for x in frame:
                 if x != 't':
                     dataseries = isolate_dataseries(x)
                     new_frame = pd.merge(new_frame, dataseries, how='outer')
             new_frame = new_frame.sort_values('t', ignore_index=True)
         return new_frame
-    
+
     print('De-multiplexing ...')
-    
+
     analogue = isolate_dataframe(analogue_channels)
     temp_array = isolate_dataframe(temp_array_channels)
     power_sensor = isolate_dataframe(power_sensor_channels)
     gps = isolate_dataframe(gps_channels)
-    imu = isolate_dataframe(imu_channels, unique_time_label=True)    
+    imu = isolate_dataframe(imu_channels, unique_time_label=True)
     misc = isolate_dataframe(misc_channels)
-    
-    
+
     # Create raw dataframes in order to enable re-runs of the conversion
     # section of the script without having to re-load data.
-    
+
     analogue_raw = analogue.copy()
     power_sensor_raw = power_sensor.copy()
     temp_array_raw = temp_array.copy()
     gps_raw = gps.copy()
     imu_raw = imu.copy()
-    
+
 
 # =========================================================================== #
 # ============================== Convert data =============================== #
@@ -346,8 +345,7 @@ if convert_data:
 
     # Physical constants
 
-    T_0 = 273.15 # 0 celsius degrees in kelvin
-
+    T_0 = 273.15  # 0 celsius degrees in kelvin
 
     # Other useful constants
     U_main = 5.0
@@ -355,25 +353,24 @@ if convert_data:
     wordlength_main = 8
     wordlength_array = 12
 
-
     # Conversion formulas
 
     def volt(bit_value, wordlength=wordlength_main, U=U_main):
         Z = 2**wordlength - 1
         rel_value = bit_value/Z
-        rel_value[rel_value>1] = np.nan # Removes obious erronous data.
+        rel_value[rel_value > 1] = np.nan  # Removes obious erronous data.
         return U*rel_value
-    
-    def analogue_voltage(U): # unit: volts
-        return U*4.2 # Inverse gain from the encoder documentation
 
-    def volt_to_pressure(U): # unit: kPa
+    def analogue_voltage(U):  # unit: volts
+        return U*4.2  # Inverse gain from the encoder documentation
+
+    def volt_to_pressure(U):  # unit: kPa
         return (200*U+95)/9
 
-    def linear_temp(U, gain, offset): # unit: celsius degrees
+    def linear_temp(U, gain, offset):  # unit: celsius degrees
         return 100*(U - offset)/gain
 
-    def volt_to_acceleration(U, sensitivity, offset): # unit: gee
+    def volt_to_acceleration(U, sensitivity, offset):  # unit: gee
         return (U-offset)/sensitivity
 
     def phototransistor(U):
@@ -384,20 +381,20 @@ if convert_data:
         # Not implemented!
         return U
 
-    def NTC(U, R_fix=R_fixed): # unit: celsius degrees
+    def NTC(U, R_fix=R_fixed):  # unit: celsius degrees
         divisor = (U_array - U) * R_ref
-        divisor[divisor<=0] = np.nan # avoids division by zero
+        divisor[divisor <= 0] = np.nan  # avoids division by zero
         R = R_fix * U / divisor
-        R[R<=0] = np.nan # avoids complex logarithms
+        R[R <= 0] = np.nan  # avoids complex logarithms
         ln_R = np.log(R)
         T = 1/(A_1 + B_1*ln_R + C_1*ln_R**2 + D_1*ln_R**3)
-        T -= T_0 # convert to celsius degrees
+        T -= T_0  # convert to celsius degrees
         return T
 
-    def array_voltage(U, gain): # unit: volts
+    def array_voltage(U, gain):  # unit: volts
         return U/gain
 
-    def array_current(U, R_current): # unit: ampere
+    def array_current(U, R_current):  # unit: ampere
         return U/(100*R_current)
 
     def imu_1D(bit_value, sensitivity, offset):
@@ -425,43 +422,40 @@ if convert_data:
         """
         return sensitivity*(bit_value-offset)
 
-    def gps_degrees(angle): # unit: degrees
+    def gps_degrees(angle):  # unit: degrees
         return angle*1e-7
 
-    def gps_height(height): # unit: meters
+    def gps_height(height):  # unit: meters
         return height*1e-2
 
-    def gps_velocity(velocity): # unit: meters per second
+    def gps_velocity(velocity):  # unit: meters per second
         return velocity*1e-2
-    
-    
+
     # Convert raw channels to volt
-    
+
     for x in analogue_channels:
         analogue[x] = volt(analogue_raw[x])
-    
+
     for x in power_sensor_channels:
         power_sensor[x] = volt(
             power_sensor_raw[x],
-            wordlength = wordlength_array,
-            U = U_array,
-            )
+            wordlength=wordlength_array,
+            U=U_array,
+        )
 
     for x in temp_array_channels:
         temp_array[x] = volt(
             temp_array_raw[x],
-            wordlength = wordlength_array,
-            U = U_array,
-            )
-    
-    
+            wordlength=wordlength_array,
+            U=U_array,
+        )
+
     # Create temporary dataframes in order to enable re-runs of the conversion
     # section of the script without having to re-load data.
-    
+
     analogue_volt = analogue.copy()
     power_sensor_volt = power_sensor.copy()
     temp_array_volt = temp_array.copy()
-
 
     # Convert data to physical units
 
@@ -470,60 +464,59 @@ if convert_data:
         analogue_volt['a_x'],
         a_x_sens,
         a_x_offset,
-        )
+    )
     analogue['a_y'] = volt_to_acceleration(
         analogue_volt['a_y'],
         a_y_sens,
         a_y_offset,
-        )
+    )
     analogue['temp_int'] = linear_temp(
         analogue_volt['temp_int'],
         temp_int_gain,
         temp_ext_offset,
-        )
+    )
     analogue['temp_ext'] = linear_temp(
         analogue_volt['temp_ext'],
         temp_ext_gain,
         temp_int_offset,
-        )
+    )
     analogue['light'] = phototransistor(analogue_volt['light'])
     analogue['mag'] = magnetometer(analogue_volt['mag'])
-    analogue['voltage_analogue'] = analogue_voltage(analogue_volt['voltage_analogue'])
-   
-    
+    analogue['voltage_analogue'] = analogue_voltage(
+        analogue_volt['voltage_analogue'])
+
     power_sensor['voltage'] = array_voltage(
         power_sensor_volt['voltage'],
         voltage_sensor_gain,
-        )
+    )
     power_sensor['current'] = array_current(
         power_sensor_volt['current'],
         R_current_sensor,
-        )
-
+    )
 
     gps['lat'] = gps_degrees(gps_raw['lat'])
     gps['long'] = gps_degrees(gps_raw['long'])
     gps['height'] = gps_height(gps_raw['height'])
     gps['speed'] = gps_velocity(gps_raw['speed'])
 
-
     imu['a_x_imu'] = imu_1D(imu_raw['a_x_imu'], a_x_imu_sens, a_x_imu_offset)
     imu['a_y_imu'] = imu_1D(imu_raw['a_y_imu'], a_y_imu_sens, a_y_imu_offset)
     imu['a_z_imu'] = imu_1D(imu_raw['a_z_imu'], a_z_imu_sens, a_z_imu_offset)
 
-    imu['ang_vel_x'] = imu_1D(imu_raw['ang_vel_x'], ang_vel_x_sens, ang_vel_x_offset)
-    imu['ang_vel_y'] = imu_1D(imu_raw['ang_vel_y'], ang_vel_y_sens, ang_vel_y_offset)
-    imu['ang_vel_z'] = imu_1D(imu_raw['ang_vel_z'], ang_vel_z_sens, ang_vel_z_offset)
+    imu['ang_vel_x'] = imu_1D(imu_raw['ang_vel_x'],
+                              ang_vel_x_sens, ang_vel_x_offset)
+    imu['ang_vel_y'] = imu_1D(imu_raw['ang_vel_y'],
+                              ang_vel_y_sens, ang_vel_y_offset)
+    imu['ang_vel_z'] = imu_1D(imu_raw['ang_vel_z'],
+                              ang_vel_z_sens, ang_vel_z_offset)
 
     imu['mag_x'] = imu_1D(imu_raw['mag_x'], mag_x_sens, mag_x_offset)
     imu['mag_y'] = imu_1D(imu_raw['mag_y'], mag_y_sens, mag_y_offset)
     imu['mag_z'] = imu_1D(imu_raw['mag_z'], mag_z_sens, mag_z_offset)
 
-
     for x in temp_array_channels:
         temp_array[x] = NTC(temp_array_volt[x])
-    
-    
+
     # Delete temporary dataframes
     del analogue_volt
     del power_sensor_volt
@@ -550,7 +543,7 @@ if process_data:
 
         r_tol : float, optional
             Tolerated change between one datapoint and the next, relative to the full range of values in DATA. The default is 0.02.
-            
+
         dense : bool, optional
             Whether the returned series should be dense (i.e. devoid of nan-values) or not.
 
@@ -581,7 +574,7 @@ if process_data:
     analogue['a_y_smooth'] = smooth(analogue['a_y'])
     analogue['temp_int_smooth'] = smooth(analogue['temp_int'])
     analogue['temp_ext_smooth'] = smooth(analogue['temp_ext'])
-    
+
     for x in temp_array_channels:
         temp_array[x+'_smooth'] = smooth(temp_array[x], r_tol=1e-6)
     temp_array_channels_smooth = [n + '_smooth' for n in temp_array_channels]
@@ -590,25 +583,46 @@ if process_data:
     gps['long_smooth'] = smooth(gps['long'], r_tol=.001)
     gps['height_smooth'] = smooth(gps['height'], r_tol=.001)
     gps['speed_smooth'] = smooth(gps['speed'], dense=False)
-    
-    
+
+
 # ================ Calculations for scientific case ================= #
 # =========================== Direction ============================= #
 # To do:
+imu.insert(0, 'direction_x', 0)
+imu.insert(0, 'direction_y', 0)
+imu.insert(0, 'direction_z', 0)
 # Starting direction
+start_direction = [75, 330.0, 0]
 # Sum of gyroscopes/t
-# Visualization of data 
-    # Compare with wind direction
-    # 3D?
-    # Stability during launch and flight
-    # Raw speed 
+imu["direction_x"][0]
+imu["direction_y"][0]
+imu["direction_z"][0]
+
+for i in range(len(imu["mag_x"])):
+    i_prev = i - 1
+    if (i_prev == -1):
+        i_prev = 0
+    time_d = imu["t_ang_vel_x"][i] - imu["t_ang_vel_x"][i_prev]
+    imu["direction_x"][i] = (imu["direction_x"][i_prev]) + \
+        (imu["ang_vel_x"][i] * time_d)
+    imu["direction_y"][i] = (imu["direction_x"][i_prev]) + \
+        (imu["ang_vel_x"][i] * time_d)
+    imu["direction_z"][i] = (imu["direction_x"][i_prev]) + \
+        (imu["ang_vel_x"][i] * time_d)
+
+
+# Visualization of data
+# Compare with wind direction
+# 3D?
+# Stability during launch and flight
+# Raw speed
 # Combine with position data
 
 # ============================ Position ============================ #
 # To do:
 # Plot into a 3D graph/t
-    # Animate 
-    # Combine with direction data
+# Animate
+# Combine with direction data
 # =========================================================================== #
 # =========================== Prepare for export ============================ #
 
@@ -616,9 +630,9 @@ export = export_processed_data or export_raw_data or export_kml or export_plots
 
 if export and working_directory == '':
     working_directory = fd.askdirectory(
-        title = 'Choose output folder',
-        parent = root
-        )
+        title='Choose output folder',
+        parent=root
+    )
     processed_data_directory = path.join(working_directory, 'Processed data')
     plot_directory = path.join(working_directory, 'Plots')
 
@@ -630,23 +644,21 @@ if create_plots:
 
     print('Plotting ...')
 
-    plt.ioff() # Prevent figures from showing unless calling plt.show()
-    plt.style.use('dark_background') # plotting style.
+    plt.ioff()  # Prevent figures from showing unless calling plt.show()
+    plt.style.use('dark_background')  # plotting style.
  #   plt.rcParams['legend.frameon'] = 'True' # Fill the background of legends.
 
     if export_plots and not path.exists(plot_directory):
         os.mkdir(plot_directory)
-    
+
     # ==================== Custom plotting functions ==================== #
 
     # Custom parameters
 
     standard_linewidth = 0.5
 
-
     # First some auxillary functions containing some often-needed lines of
     # code for custom plots.
-
 
     # Standard settings for plt.figure()
     # Create a figure, or ready an already existing figure for new data.
@@ -657,62 +669,60 @@ if create_plots:
         plt.figure(name, clear=True)
         return name
 
-
     # Standard plotting function.
 
     def plot_data(x, y, data=analogue, data_set=''):
         x_smooth = x + '_smooth'
         y_smooth = y + '_smooth'
         if x_smooth in data.columns:
-            if data_set=='':
+            if data_set == '':
                 data_set = 'compare'
         else:
             x_smooth = x
         if y_smooth in data.columns:
-            if data_set=='':
+            if data_set == '':
                 data_set = 'compare'
         else:
             y_smooth = y
-            
-        if data_set=='compare':
+
+        if data_set == 'compare':
             raw, = plt.plot(
                 data[x],
                 data[y],
                 'r-',
-                linewidth = standard_linewidth,
-                )
+                linewidth=standard_linewidth,
+            )
             smoothed, = plt.plot(
                 data[x_smooth],
                 data[y_smooth],
                 'b-',
-                linewidth = standard_linewidth,
-                )
+                linewidth=standard_linewidth,
+            )
             plots = [smoothed, raw]
             labels = ['Smoothed data', 'Raw data']
-            
-        elif data_set=='raw_only' or data_set=='':
+
+        elif data_set == 'raw_only' or data_set == '':
             plots, = plt.plot(
                 data[x],
                 data[y],
                 'b-',
-                linewidth = standard_linewidth,
-                )
+                linewidth=standard_linewidth,
+            )
             labels = 'Raw data'
-            
-        elif data_set=='smooth_only':
+
+        elif data_set == 'smooth_only':
             plots, = plt.plot(
                 data[x_smooth],
                 data[y_smooth],
                 'b-',
-                linewidth = standard_linewidth,
-                )
+                linewidth=standard_linewidth,
+            )
             labels = 'Smoothed data'
-            
+
         else:
             print('The given data_set argument is invalid.')
-            
-        return plots, labels
 
+        return plots, labels
 
     # Create legend. Standard settings for plt.legend()
 
@@ -720,10 +730,9 @@ if create_plots:
         plt.legend(
             plots,
             plot_labels,
-            facecolor = 'black',
-            framealpha = 1
-            )
-
+            facecolor='black',
+            framealpha=1
+        )
 
     # Standard layout, and if-statements to show and/or export the figure as
     # necessary.
@@ -731,19 +740,18 @@ if create_plots:
     def finalize_figure(figure_name):
         plt.tight_layout()
         if export_plots:
-            file_formats = ['png', 'pdf'] # pdf needed for vector graphics.
+            file_formats = ['png', 'pdf']  # pdf needed for vector graphics.
             for ext in file_formats:
                 file_name = figure_name + '.' + ext
                 file_name = path.join(plot_directory, file_name)
                 plt.savefig(
                     file_name,
-                    format = ext,
-                    dpi = 600
-                    )
+                    format=ext,
+                    dpi=600
+                )
         if show_plots:
             plt.draw()
             plt.show(block=False)
-
 
     # This is a single function providing a simple interface for standard
     # graphs, as well as serving as an example of how the auxillary functions
@@ -754,42 +762,41 @@ if create_plots:
         data_plots, data_labels = plot_data(
             x,
             y,
-            data = data_bank
-            )
+            data=data_bank
+        )
         plt.xlabel(x_label)
         plt.ylabel(y_label)
         make_legend(data_plots, data_labels)
         finalize_figure(figure_name)
 
-    
     # ========================= Specific plots ========================== #
 
     # =============================== IMU =============================== #
-    
+
     # The IMU is a bit special, in that each channel is stored at different
     # time slots. Hence, we need to use unique time-variables for each channel.
-    
+
     # IMU gyroscope
-    
+
     figure_name = create_figure('IMU gyro')
     x_plot, = plt.plot(
         imu['t_ang_vel_x'],
         imu['ang_vel_x'],
         '-',
-        linewidth = standard_linewidth,
-        )
+        linewidth=standard_linewidth,
+    )
     y_plot, = plt.plot(
         imu['t_ang_vel_y'],
         imu['ang_vel_y'],
         '-',
-        linewidth = standard_linewidth,
-        )
+        linewidth=standard_linewidth,
+    )
     z_plot, = plt.plot(
         imu['t_ang_vel_z'],
         imu['ang_vel_z'],
         '-',
-        linewidth = standard_linewidth,
-        )
+        linewidth=standard_linewidth,
+    )
     plots = [x_plot, y_plot, z_plot]
     labels = ['$x$', '$y$', '$z$']
     plt.xlabel('$t$ [s]')
@@ -797,18 +804,16 @@ if create_plots:
     make_legend(plots, labels)
     finalize_figure(figure_name)
 
-
-    
     # ========================== Miscellaneous ========================== #
-    
+
     # Frame counter
 
     figure_name = create_figure('Frame counter')
     plot_data(
         't',
         'framecounter',
-        data = misc,
-        )
+        data=misc,
+    )
     plt.xlabel('$t$ [s]')
     plt.ylabel('Frame number')
     finalize_figure(figure_name)
@@ -823,14 +828,14 @@ if create_plots:
 
 if export_processed_data or export_raw_data:
     print('Exporting ...')
-    
+
     def export_frame(frame, frame_name, directory):
         if not path.exists(directory):
             os.mkdir(directory)
         data_file = parent_file_name + '_' + frame_name + '.csv'
         data_file = path.join(directory, data_file)
-        frame.to_csv(data_file, sep = ',', decimal = '.', index = False)
-    
+        frame.to_csv(data_file, sep=',', decimal='.', index=False)
+
     if export_processed_data:
         export_frame(analogue, 'analogue', processed_data_directory)
         export_frame(gps, 'GPS', processed_data_directory)
@@ -838,25 +843,25 @@ if export_processed_data or export_raw_data:
         export_frame(temp_array, 'temp_array', processed_data_directory)
         export_frame(power_sensor, 'power_sensor', processed_data_directory)
         export_frame(misc, 'misc', processed_data_directory)
-    
+
     if export_raw_data:
         # Create an inverse channel dictionary
         raw_channels = {v: k for k, v in channels.items()}
-        
+
         # Temporarily rename channel names back to their original names
         raw_data.rename(
-            columns = raw_channels,
-            inplace = True,
-            )
-        
+            columns=raw_channels,
+            inplace=True,
+        )
+
         # Export raw data
         export_frame(raw_data, 'raw', working_directory)
-        
+
         # Swap channel names back again
         raw_data.rename(
-            columns = channels,
-            inplace = True,
-            )
+            columns=channels,
+            inplace=True,
+        )
 
 
 # Create and export a kml-file which can be opened in Google Earth.
@@ -870,7 +875,7 @@ if export_kml:
         gps['lat_smooth'].notna() &
         gps['long_smooth'].notna() &
         gps['height_smooth'].notna()
-        )
+    )
     kml_lat = gps['lat_smooth'][notna_indices].copy().to_numpy()
     kml_long = gps['long_smooth'][notna_indices].copy().to_numpy()
     kml_height = gps['height_smooth'][notna_indices].copy().to_numpy()
@@ -879,7 +884,7 @@ if export_kml:
     # array and savetxt()-function to save our kml file.
     # Unfortunately, this means that we need to hard-code the kml-file ...
     kml_header = (
-'''<?xml version="1.0" encoding="UTF-8"?>
+        '''<?xml version="1.0" encoding="UTF-8"?>
 <kml xmlns="http://earth.google.com/kml/2.2">
 <Document>
 <name>Paths</name>
@@ -906,7 +911,7 @@ if export_kml:
     kml_body = np.array([kml_long, kml_lat, kml_height]).transpose()
 
     kml_footer = (
-'''</coordinates>
+        '''</coordinates>
 </LineString>
 </Placemark>
 </Document>
@@ -918,10 +923,10 @@ if export_kml:
     np.savetxt(
         data_file,
         kml_body,
-        fmt = '%.6f',
-        delimiter = ',',
-        header = kml_header,
-        footer = kml_footer,
-        comments = '',
-        )
+        fmt='%.6f',
+        delimiter=',',
+        header=kml_header,
+        footer=kml_footer,
+        comments='',
+    )
 input("Press enter to continue:")
