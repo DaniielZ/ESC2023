@@ -592,14 +592,23 @@ if process_data:
     gps['speed_smooth'] = smooth(gps['speed'], dense=False)
     
     
-    # ================ Calculations for scientific case ================= #
+# ================ Calculations for scientific case ================= #
+# =========================== Direction ============================= #
+# To do:
+# Starting direction
+# Sum of gyroscopes/t
+# Visualization of data 
+    # Compare with wind direction
+    # 3D?
+    # Stability during launch and flight
+    # Raw speed 
+# Combine with position data
 
-imu.insert(0, 'mag_total', 0)
-for i in range(len(imu['mag_y'])):    
-    imu['mag_total'][i] = math.sqrt((math.pow(imu['mag_x'][i], 2) + math.pow(imu['mag_x'][i], 2) + math.pow(imu['mag_x'][i], 2)))
-
-
-
+# ============================ Position ============================ #
+# To do:
+# Plot into a 3D graph/t
+    # Animate 
+    # Combine with direction data
 # =========================================================================== #
 # =========================== Prepare for export ============================ #
 
@@ -755,7 +764,6 @@ if create_plots:
     
     # ========================= Specific plots ========================== #
 
-   
     # =============================== IMU =============================== #
     
     # The IMU is a bit special, in that each channel is stored at different
