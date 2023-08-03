@@ -924,4 +924,4 @@ if export_kml:
         footer = kml_footer,
         comments = '',
         )
-    input("Press enter to continue:")
+input("Press enter to continue:")
